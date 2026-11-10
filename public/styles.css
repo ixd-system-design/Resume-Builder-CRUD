@@ -17,6 +17,9 @@ input:focus, textarea:focus, button:focus-visible { outline: 3px solid #80c8b6; 
 .years { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 button { background: #176050; color: white; border: 0; border-radius: 5px; padding: .7rem 1.2rem; font-weight: 700; cursor: pointer; }
 button:disabled { opacity: .65; cursor: wait; }
+.form-actions, .item-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+button.secondary { background: white; color: #176050; border: 1px solid #176050; }
+[hidden] { display: none !important; }
 #form-status { margin: .75rem 0 0; }
 .resume-header { border-bottom: 2px solid #176050; margin-bottom: 1.5rem; }
 .resume-header p:last-child { color: #52636e; }

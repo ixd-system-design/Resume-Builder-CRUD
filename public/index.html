@@ -10,7 +10,7 @@
 <body>
   <main class="layout">
     <section class="panel" aria-labelledby="form-heading">
-      <p class="eyebrow">Create &amp; read demo</p>
+      <p class="eyebrow">Resume builder demo</p>
       <h1 id="form-heading">Build a resume</h1>
       <p>Add a fictional work experience. Entries are public and shared with everyone using this demo.</p>
       <form id="resume-form" novalidate>
@@ -41,7 +41,10 @@
           <textarea id="accomplishment" name="accomplishment" rows="4" required maxlength="1000" aria-describedby="accomplishment-error"></textarea>
           <span class="error" id="accomplishment-error"></span>
         </div>
-        <button type="submit">Add experience</button>
+        <div class="form-actions">
+          <button type="submit">Add experience</button>
+          <button id="cancel-edit" class="secondary" type="button" hidden>Cancel edit</button>
+        </div>
         <p id="form-status" role="status" aria-live="polite"></p>
       </form>
     </section>
@@ -61,6 +64,10 @@
       <div class="experience-heading"><h3 class="job-title"></h3><p class="dates"></p></div>
       <p class="employer"></p>
       <p class="accomplishment"></p>
+      <div class="item-actions">
+        <button class="edit-item secondary" type="button">Edit</button>
+        <button class="delete-item secondary" type="button">Delete</button>
+      </div>
     </article>
   </template>
 </body>

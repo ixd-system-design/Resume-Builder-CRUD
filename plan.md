@@ -2,13 +2,13 @@
 
 ## Goal and scope
 
-Build a public, single-resume learning demo that lets visitors add work-experience items and see all saved items below the form. Demonstrate the create and read parts of CRUD using native browser APIs, an Express API running as a Netlify Function, and MongoDB Atlas. Data is fictional; authentication, editing, deletion, automated tests, and production-grade abuse prevention are out of scope.
+Build a public, single-resume learning demo that lets visitors add, edit, and delete work-experience items and see all saved items below the form. The API supports CRUD using native Netlify Functions and MongoDB Atlas. Data is fictional; authentication, automated tests, and production-grade abuse prevention are out of scope.
 
 ## Proposed structure
 
 - `public/`: static HTML, CSS, and browser JavaScript. The page contains a static resume header and footer, an item-entry form, a status area, and a `<template>` for dynamic resume items.
-- `netlify/functions/`: the Express application and its `serverless-http` function handler; keep the database connection and Mongoose model in focused modules as appropriate.
-- `netlify.toml`: publish `public`, configure the functions directory, and route `/api/*` to the Express function.
+- `netlify/functions/`: separate native function handlers for the plural read and singular create, update, and delete routes; keep the database connection and Mongoose model in focused modules.
+- `netlify.toml`: publish `public` and configure the functions directory.
 - `package.json`: declare ESM with `"type": "module"`, application dependencies, and a `dev` script that runs `npx netlify-cli dev`. Do not add Netlify CLI as a dependency.
 - `.env.example`: document the single MongoDB connection string variable without real credentials.
 - `.gitignore`: exclude `.env`, dependencies, and Netlify-generated local files.
@@ -30,12 +30,14 @@ Use compatible length limits on text fields in the form and schema. The form sho
 
 ## API and database
 
-1. Install the latest compatible releases of Express, Mongoose, and `serverless-http` at implementation time. Select a Node.js version supported by those releases and Netlify's current function runtime.
+1. Use Mongoose and a Node.js version supported by both Mongoose and Netlify's function runtime.
 2. Read a single `MONGODB_URI` environment variable containing the Atlas connection string and database name. Connect lazily and reuse a cached connection or connection promise across warm function invocations; clear a failed promise so a later request can retry.
-3. Expose these JSON endpoints through Express and the Netlify Function:
+3. Expose these JSON endpoints through Netlify Functions:
    - `GET /api/resume-items`: fetch all documents from `resume_items` and return them as an array, without transforming the retrieved data.
-   - `POST /api/resume-items`: accept an item, let Mongoose cast and validate it, save it, and return the saved document with HTTP 201. Return HTTP 400 for malformed JSON or validation/casting errors and a generic HTTP 500 for database or unexpected failures.
-4. Configure the Netlify rewrite and Express routing together so the same `/api/resume-items` URLs work locally and after deployment. Limit JSON request size and avoid exposing connection strings or internal error details. Do not add authentication or an index.
+   - `POST /api/resume-item`: accept and validate an item, save it, and return the saved document with HTTP 201.
+   - `PUT /api/resume-item?id=<id>`: replace an item's editable fields and return it.
+   - `DELETE /api/resume-item?id=<id>`: delete an item and return HTTP 200 with a JSON confirmation and the deleted ID. PUT and DELETE return HTTP 404 when an item is not found. Invalid JSON, IDs, and fields return HTTP 400; unexpected failures return HTTP 500.
+4. Configure each function's path so both URLs work locally and after deployment. Avoid exposing connection strings or internal error details. Do not add authentication or an index.
 
 ## Browser experience
 
@@ -43,7 +45,7 @@ Use compatible length limits on text fields in the form and schema. The form sho
 2. Use the Constraint Validation API to show actionable inline messages on invalid fields and clear them when corrected. Preserve entered values if the POST fails; show a useful form-level error for server or network failures.
 3. On page load, fetch the GET endpoint and render every returned item below the form. Show accessible loading, empty, and error states.
 4. Clone the `<template>` for each item and populate its elements using `textContent`, including a readable indication for a current role when `end_year` is absent. Never insert user-supplied data as HTML.
-5. After a successful POST, clear the form and fetch the list again so the displayed resume reflects the database. Provide feedback if the subsequent refresh fails.
+5. Let visitors edit an item in the form, cancel editing, or confirm deletion. After a successful POST, PUT, or DELETE, fetch the list again so the displayed resume reflects the database. Provide feedback if the subsequent refresh fails.
 
 ## Local setup and deployment
 
